@@ -16,4 +16,4 @@ InventorySchema.virtual("url").get(function () {
 });
 
 // Export model
-module.exports = mongoose.model("Author", InventorySchema);
+module.exports = mongoose.model("Inventory", InventorySchema);
