@@ -7,7 +7,7 @@ console.log(
   // Get arguments passed on command line
   const userArgs = process.argv.slice(2);
   
-  const Category = require("./models/categories");
+  const Category = require("./models/category");
   const Inventory = require("./models/inventory");
   
   const categories = [];
