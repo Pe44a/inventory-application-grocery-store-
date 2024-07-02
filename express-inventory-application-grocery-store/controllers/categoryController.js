@@ -128,12 +128,78 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Display Category update page on GET.
+// Display book update form on GET.
 exports.category_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update GET");
+  // Get category for form.
+  const category = await Category.findById(req.params.id)
+
+  if (category === null) {
+    // No results.
+    const err = new Error("Category not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("category_form", {
+    title: "Update Category",
+    category: category
+  });
 });
 
 // Handle Category update on POST.
-exports.category_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update POST");
-});
+exports.category_update_post = [
+  // Convert the genre to an array.
+  (req, res, next) => {
+    if (!Array.isArray(req.body.category)) {
+      req.body.category =
+        typeof req.body.category === "undefined" ? [] : [req.body.category];
+    }
+    next();
+  },
+
+  // Validate and sanitize fields.
+  body("name", "Name must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("description", "Description must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  // Process request after validation and sanitization.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+    // Create a Book object with escaped/trimmed data and old id.
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description,
+      _id: req.params.id, // This is required, or a new ID will be assigned!
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+      const category = await Category.findById(req.params.id)
+
+      if (category === null) {
+        // No results.
+        const err = new Error("Category not found");
+        err.status = 404;
+        return next(err);
+      }
+    
+      res.render("category_form", {
+        title: "Update Category",
+        category: category
+      });
+      return;
+    } else {
+      // Data from form is valid. Update the record.
+      const updatedCategory = await Category.findByIdAndUpdate(req.params.id, category, {});
+      // Redirect to category detail page.
+      res.redirect(updatedCategory.url);
+    }
+  })
+];

@@ -125,10 +125,95 @@ exports.inventory_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display Inventory update page on GET.
 exports.inventory_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory update GET");
+  // Get category for form.
+  const inventory = await Inventory.findById(req.params.id)
+  const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+
+  if (inventory === null) {
+    // No results.
+    const err = new Error("Category not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("inventory_form", {
+    title: "Update Inventory Item",
+    inventory: inventory,
+    categories: allCategories 
+  });
 });
 
 // Handle Inventory update on POST.
-exports.inventory_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory update POST");
-});
+exports.inventory_update_post = [
+  // Convert the genre to an array.
+  (req, res, next) => {
+    if (!Array.isArray(req.body.inventory)) {
+      req.body.inventory =
+        typeof req.body.inventory === "undefined" ? [] : [req.body.category];
+    }
+    next();
+  },
+
+  // Validate and sanitize fields.
+  body("name", "Name must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("description", "Description must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body("category", "Category must not be empty.")
+    .escape(),
+    body("price", "Price must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body("numberInStock", "NumberInStock must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  // Process request after validation and sanitization.
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
+
+    // Create a Book object with escaped/trimmed data and old id.
+    const inventory = new Inventory({
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      price: req.body.price,
+      numberInStock: req.body.numberInStock,
+      _id: req.params.id, // This is required, or a new ID will be assigned!
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+          // Get category for form.
+      const inventory = await Inventory.findById(req.params.id)
+      const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+
+      if (inventory === null) {
+        // No results.
+        const err = new Error("Category not found");
+        err.status = 404;
+        return next(err);
+      }
+
+      res.render("inventory_form", {
+        title: "Update Inventory Item",
+        inventory: inventory,
+        categories: allCategories 
+      }
+      )} else {
+      // Data from form is valid. Update the record.
+      const updatedInventory = await Inventory.findByIdAndUpdate(req.params.id, inventory, {});
+      // Redirect to category detail page.
+      res.redirect(updatedInventory.url);
+    }
+  })
+];

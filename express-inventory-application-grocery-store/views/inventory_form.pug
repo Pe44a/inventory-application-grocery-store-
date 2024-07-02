@@ -14,7 +14,7 @@ block content
       select#category.form-control(name='category' required)
         option(value='') Select category
         each category in categories
-          option(value=category._id selected=(undefined===inventory || inventory.category.toString()!==category._id.toString() ? false : true)) #{category.name}
+          option(value=category._id selected=(undefined===inventory || inventory.category.toString()===category._id.toString() ? true : false)) #{category.name}
     div.form-group
       label(for='price') Price:
       input#price.form-control(type='number' step='0.01' min='0' name='price' required value=(undefined===inventory ? '' : inventory.price))
