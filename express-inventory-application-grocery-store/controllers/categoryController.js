@@ -1,9 +1,19 @@
 const Category = require("../models/category");
 const asyncHandler = require("express-async-handler");
 
+// Display home page 
+exports.index = asyncHandler(async (req, res, next) => {
+  res.render("index", {});
+});
+
+
 // Display list of all Categories.
 exports.category_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category list");
+  const allCategories = await Category.find().sort({ name: 1 }).exec();
+  res.render("category_list", {
+    title: "Categories list",
+    categories_list: allCategories,
+  });
 });
 
 // Display inventory page with specific  Category.

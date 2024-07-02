@@ -6,8 +6,8 @@ const category_controller = require("../controllers/categoryController");
 const inventory_controller = require("../controllers/inventoryController");
 
 
-// GET catalog list
-router.get("/", inventory_controller.inventory_list);
+// GET home page list
+router.get("/", category_controller.index);
 
 
 /// INVENTORY ROUTES ///
