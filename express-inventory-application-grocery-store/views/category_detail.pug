@@ -1,10 +1,14 @@
 extends layout
 
 block content
-  h1= category_name.name
-  h3= category_name.description
+  h1= category.name
+  h3= category.description
   
   ul
     each item in items_in_category 
       li
         a(href=item.url) #{item.name}
+
+  div.actions
+    a(href=category.url+'/update') Update Product
+    a(href=category.url+'/delete') Delete Product

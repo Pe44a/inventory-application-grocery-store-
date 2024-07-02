@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1 #{title}: #{inventory.name}
+  p Do you really want to delete this Inventory Item?
+    
+  form(method='POST' action='')
+    div.form-group
+      input#inventoryid.form-control(type='hidden', name='inventoryid', required='true', value=inventory._id )
+
+    button.btn.btn-primary(type='submit') Delete
+
+  if errors
+    ul
+      for error in errors
+        li!= error.msg
+    
+  h2 Item Details
+  p #[strong Name:] #{inventory.name}
+  p #[strong Description:] #{inventory.description}
+  p #[strong Category:] #{category.name}
+  p #[strong Price:] $#{inventory.price}
+  p #[strong Number in Stock:] #{inventory.numberInStock}

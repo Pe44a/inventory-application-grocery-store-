@@ -22,7 +22,7 @@ exports.category_list = asyncHandler(async (req, res, next) => {
 // Display inventory page with specific  Category.
 exports.category_detail = asyncHandler(async (req, res, next) => {
   const itemsInCategory = await Inventory.find({ category: req.params.id },{name:1}).exec();
-  const categoryName = await Category.findById(req.params.id)
+  const category = await Category.findById(req.params.id)
   
   if (itemsInCategory == null) {
     const err = new Error('Inventory item not found');
@@ -32,7 +32,7 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
 
   // Render the "inventory_detail" view with the data
   res.render('category_detail', { 
-    category_name: categoryName,
+    category: category,
     items_in_category: itemsInCategory
   });});
 
@@ -88,14 +88,44 @@ exports.category_create_post = [
   }),
 ];
 
-// Display Category delete page on GET.
+// Display category delete form on GET
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category delete GET");
+  const [category, itemsWithCategory] = await Promise.all([
+    Category.findById(req.params.id).exec(),
+    Inventory.find({ category: req.params.id }, {'name':1}).exec()
+  ]);
+
+  if (category === null) {
+    res.redirect('/catalog/categories');
+  }
+
+  res.render('category_delete', {
+    title: 'Delete Category',
+    category: category,
+    category_items: itemsWithCategory
+  });
 });
 
-// Handle Category delete on POST.
+// Handle category delete on POST
 exports.category_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category delete POST");
+  const [category, itemsWithCategory] = await Promise.all([
+    Category.findById(req.params.id).exec(),
+    Item.find({ category: req.params.id }, 'name').exec()
+  ]);
+
+  if (itemsWithCategory.length > 0) {
+    // Category has items. Render in same way as for GET route.
+    res.render('category_delete', {
+      title: 'Delete Category',
+      category: category,
+      category_items: itemsWithCategory
+    });
+    return;
+  } else {
+    // Category has no items. Delete object and redirect to the list of categories.
+    await Category.findByIdAndRemove(req.body.categoryid);
+    res.redirect('/catalog/categories');
+  }
 });
 
 // Display Category update page on GET.

@@ -102,12 +102,25 @@ exports.inventory_create_get = asyncHandler(async (req, res, next) => {
 
 // Display Inventory delete page on GET.
 exports.inventory_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory delete GET");
+  const inventory = await Inventory.findById(req.params.id).exec();
+  const category = await Category.findById(inventory.category._id).exec();
+
+  if (inventory === null) {
+    res.redirect('/catalog/inventories');
+  }
+
+  res.render('inventory_delete', {
+    title: 'Delete Inventory Item',
+    inventory: inventory,
+    category: category
+  });
 });
 
 // Handle Inventory delete on POST.
 exports.inventory_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory delete POST");
+
+  await Inventory.findByIdAndDelete(req.body.inventoryid);
+  res.redirect("/catalog/inventories");
 });
 
 // Display Inventory update page on GET.
