@@ -1,5 +1,6 @@
 const Category = require("../models/category");
 const asyncHandler = require("express-async-handler");
+const Inventory = require("../models/inventory")
 
 // Display home page 
 exports.index = asyncHandler(async (req, res, next) => {
@@ -18,8 +19,20 @@ exports.category_list = asyncHandler(async (req, res, next) => {
 
 // Display inventory page with specific  Category.
 exports.category_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Category detail: ${req.params.id}`);
-});
+  const itemsInCategory = await Inventory.find({ category: req.params.id },{name:1}).exec();
+  const categoryName = await Category.findById(req.params.id)
+  
+  if (itemsInCategory == null) {
+    const err = new Error('Inventory item not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  // Render the "inventory_detail" view with the data
+  res.render('category_detail', { 
+    category_name: categoryName,
+    items_in_category: itemsInCategory
+  });});
 
 // Display Category create form on GET.
 exports.category_create_get = asyncHandler(async (req, res, next) => {

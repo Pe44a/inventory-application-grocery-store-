@@ -1,0 +1,31 @@
+extends layout
+
+block content
+  console.log(inventory)
+  h1 Product: #{inventory.name}
+
+  div.product-details
+    p
+      strong Description: 
+      | #{inventory.description}
+    
+    p
+      strong Category: 
+      a(href=inventory.category.url) #{inventory.category.name}
+    
+    p
+      strong Price: 
+      | $#{inventory.price.toFixed(2)}
+    
+    p
+      strong Number in Stock: 
+      | #{inventory.numberInStock}
+
+  div.actions
+    a(href=inventory.url+'/update') Update Product
+    a(href=inventory.url+'/delete') Delete Product
+
+  if inventory.numberInStock > 0
+    p.in-stock This product is currently in stock.
+  else
+    p.out-of-stock This product is currently out of stock.

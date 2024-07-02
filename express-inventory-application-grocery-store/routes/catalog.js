@@ -12,12 +12,6 @@ router.get("/", category_controller.index);
 
 /// INVENTORY ROUTES ///
 
-// GET request for one Inventory item.
-router.get("/inventory/:id", inventory_controller.inventory_detail);
-
-// GET request for list of all Inventory items.
-router.get("/inventories", inventory_controller.inventory_list);
-
 // GET request for creating Inventory item.
 router.get("/inventory/create", inventory_controller.inventory_create_get);
 
@@ -36,14 +30,14 @@ router.get("/inventory/:id/update", inventory_controller.inventory_update_get);
 // POST request to update Inventory item.
 router.post("/inventory/:id/update", inventory_controller.inventory_update_post);
 
+// GET request for one Inventory item.
+router.get("/inventory/:id", inventory_controller.inventory_detail);
+
+// GET request for list of all Inventory items.
+router.get("/inventories", inventory_controller.inventory_list);
+
 
 /// CATEGORY ROUTES ///
-
-// GET request for one Category.
-router.get("/category/:id", category_controller.category_detail);
-
-// GET request for list of all Category items.
-router.get("/categories", category_controller.category_list);
 
 // GET request for creating a Category.
 router.get("/category/create", category_controller.category_create_get);
@@ -62,6 +56,12 @@ router.get("/category/:id/update", category_controller.category_update_get);
 
 // POST request to update Category.
 router.post("/category/:id/update", category_controller.category_update_post);
+
+// GET request for one Category.
+router.get("/category/:id", category_controller.category_detail);
+
+// GET request for list of all Category items.
+router.get("/categories", category_controller.category_list);
 
 
 

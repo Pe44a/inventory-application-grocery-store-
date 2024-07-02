@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1= category_name.name
+  h3= category_name.description
+  
+  ul
+    each item in items_in_category 
+      li
+        a(href=item.url) #{item.name}

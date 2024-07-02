@@ -11,8 +11,21 @@ exports.inventory_list = asyncHandler(async (req, res, next) => {
 });
 
 // Display detail page for a specific Inventory item.
-exports.inventory_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Inventory detail: ${req.params.id}`);
+exports.inventory_detail = asyncHandler(async (req, res, next) => {  
+  const inventory = await Inventory.findById(req.params.id).populate('category').exec();
+  console.log(inventory)
+  
+  if (inventory == null) {
+    const err = new Error('Inventory item not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  // Render the "inventory_detail" view with the data
+  res.render('inventory_detail', { 
+    title: inventory.name,
+    inventory: inventory,
+  });
 });
 
 // Display Inventory create form on GET.

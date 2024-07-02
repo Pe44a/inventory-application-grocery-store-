@@ -12,7 +12,7 @@ const InventorySchema = new Schema({
 
 // Virtual for author's URL
 InventorySchema.virtual("url").get(function () {
-  return `/inventory/${this._id}`;
+  return `/catalog/inventory/${this._id}`;
 });
 
 // Export model
