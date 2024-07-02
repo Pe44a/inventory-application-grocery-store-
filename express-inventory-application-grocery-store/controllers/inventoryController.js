@@ -1,5 +1,7 @@
 const Inventory = require("../models/inventory");
+const Category = require("../models/category");
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Display list of all Inventory items.
 exports.inventory_list = asyncHandler(async (req, res, next) => {
@@ -30,13 +32,73 @@ exports.inventory_detail = asyncHandler(async (req, res, next) => {
 
 // Display Inventory create form on GET.
 exports.inventory_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory create GET");
+  const allCategories = await Category.find().sort({ name: 1 }).exec();
+  res.render("inventory_form", { title: "Create Inventory Item", categories: allCategories });
 });
 
 // Handle Inventory create on POST.
-exports.inventory_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Inventory create POST");
-});
+  exports.inventory_create_post = [
+    // Convert the genre to an array.
+    (req, res, next) => {
+      if (!Array.isArray(req.body.genre)) {
+        req.body.inventory =
+          typeof req.body.inventory === "undefined" ? [] : [req.body.genre];
+      }
+      next();
+    },
+  
+    // Validate and sanitize fields.
+    body("name", "Name must not be empty.")
+      .trim()
+      .isLength({ min: 1 })
+      .escape(),
+    body("description", "Description must not be empty.")
+      .trim()
+      .isLength({ min: 1 })
+      .escape(),
+    body("category", "Please select category.")
+      .escape(),
+    body("price", "Price must not be empty")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    body("numberInStock")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+    // Process request after validation and sanitization.
+  
+    asyncHandler(async (req, res, next) => {
+      // Extract the validation errors from a request.
+      const errors = validationResult(req);
+  
+      // Create a Book object with escaped and trimmed data.
+      const inventory = new Inventory({
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        price: req.body.price,
+        numberInStock: req.body.numberInStock,
+      });
+  
+      if (!errors.isEmpty()) {
+        // There are errors. Render form again with sanitized values/error messages.
+
+      // Get all categories for form.
+      const allCategories = await Category.find().sort({ name: 1 }).exec();
+
+      res.render("inventory_form", {
+        title: "Create Inventory Item",
+        categories: allCategories,
+        errors: errors.array(),
+      });
+    } else {
+      // Data from form is valid. Save inventory item.
+      await inventory.save();
+      res.redirect(inventory.url);
+    }
+  }),
+  ];
 
 // Display Inventory delete page on GET.
 exports.inventory_delete_get = asyncHandler(async (req, res, next) => {

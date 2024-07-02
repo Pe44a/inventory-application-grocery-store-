@@ -1,6 +1,8 @@
 const Category = require("../models/category");
 const asyncHandler = require("express-async-handler");
 const Inventory = require("../models/inventory")
+const { body, validationResult } = require("express-validator");
+
 
 // Display home page 
 exports.index = asyncHandler(async (req, res, next) => {
@@ -34,15 +36,57 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
     items_in_category: itemsInCategory
   });});
 
-// Display Category create form on GET.
+// Display category create form on GET
 exports.category_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category create GET");
+  res.render('category_form', { title: 'Create Category' });
 });
 
-// Handle Category create on POST.
-exports.category_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category create POST");
-});
+// Handle category create on POST
+exports.category_create_post = [
+  // Validate and sanitize fields
+  body('name', 'Category name must not be empty.')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body('description', 'Category description must not be empty.')
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+
+  // Process request after validation and sanitization
+  asyncHandler(async (req, res, next) => {
+    // Extract the validation errors from a request
+    const errors = validationResult(req);
+
+    // Create a Category object with escaped and trimmed data
+    const category = new Category({
+      name: req.body.name,
+      description: req.body.description
+    });
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+      res.render('category_form', {
+        title: 'Create Category',
+        category: category,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      // Data from form is valid
+      // Check if Category with same name already exists
+      const categoryExists = await Category.findOne({ name: req.body.name }).exec();
+      if (categoryExists) {
+        // Category exists, redirect to its detail page
+        res.redirect(categoryExists.url);
+      } else {
+        await category.save();
+        // New category saved. Redirect to category detail page
+        res.redirect(category.url);
+      }
+    }
+  }),
+];
 
 // Display Category delete page on GET.
 exports.category_delete_get = asyncHandler(async (req, res, next) => {
