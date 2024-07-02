@@ -3,7 +3,7 @@ extends layout
 block content
   h1= title
   
-  ul
+  ul(class="list container")
     each inventory in inventories_list 
       li
         a(href=inventory.url) #{inventory.name}

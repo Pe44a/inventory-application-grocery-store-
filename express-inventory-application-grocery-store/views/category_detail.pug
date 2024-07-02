@@ -4,11 +4,12 @@ block content
   h1= category.name
   h3= category.description
   
-  ul
+  ul(class="list container")
     each item in items_in_category 
       li
         a(href=item.url) #{item.name}
 
   div.actions
     a(href=category.url+'/update') Update Product
+    br
     a(href=category.url+'/delete') Delete Product
